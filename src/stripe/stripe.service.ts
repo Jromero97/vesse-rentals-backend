@@ -37,15 +37,21 @@ export class StripeService {
     currency: string,
     ownerStripeAccountId: string,
   ) {
-    return await this.stripe.paymentIntents.create({
-      amount,
-      currency,
-      payment_method_types: ['card'],
-      application_fee_amount: Math.floor(amount * 0.1),
-      transfer_data: {
-        destination: ownerStripeAccountId,
+    return await this.stripe.paymentIntents.create(
+      {
+        amount,
+        currency,
+        payment_method_types: ['card'],
+        capture_method: 'manual',
+        application_fee_amount: Math.floor(amount * 0.1),
+        transfer_data: {
+          destination: ownerStripeAccountId,
+        },
       },
-    });
+      {
+        stripeAccount: ownerStripeAccountId,
+      },
+    );
   }
 
   constructEventFromPayload(signature: string, payload: Buffer) {
