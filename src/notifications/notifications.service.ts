@@ -7,7 +7,7 @@ export class NotificationsService implements OnModuleInit {
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(
-          process.env.FIREBASE_SERVICE_ACCOUNT_KEY!,
+          JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY!),
         ),
       });
     }
