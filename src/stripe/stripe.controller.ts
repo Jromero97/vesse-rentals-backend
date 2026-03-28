@@ -8,6 +8,7 @@ import {
   Delete,
   Param,
   Get,
+  Put,
 } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import type { Request, Response } from 'express';
@@ -53,6 +54,47 @@ export class StripeController {
   @Get('balance/:accountId')
   async getBalance(@Param('accountId') accountId: string) {
     return await this.stripeService.getBalance(accountId);
+  }
+
+  @Post('customers')
+  async createCustomer(
+    @Body() body: { email: string; name?: string },
+  ) {
+    return await this.stripeService.createCustomer(body.email, body.name);
+  }
+
+  @Post('customers/:customerId/payment-methods')
+  async attachPaymentMethod(
+    @Param('customerId') customerId: string,
+    @Body('paymentMethodId') paymentMethodId: string,
+  ) {
+    return await this.stripeService.attachPaymentMethod(
+      customerId,
+      paymentMethodId,
+    );
+  }
+
+  @Get('customers/:customerId/payment-methods')
+  async listPaymentMethods(@Param('customerId') customerId: string) {
+    return await this.stripeService.listPaymentMethods(customerId);
+  }
+
+  @Put('customers/:customerId/payment-methods/default')
+  async setDefaultPaymentMethod(
+    @Param('customerId') customerId: string,
+    @Body('paymentMethodId') paymentMethodId: string,
+  ) {
+    return await this.stripeService.setDefaultPaymentMethod(
+      customerId,
+      paymentMethodId,
+    );
+  }
+
+  @Delete('customers/:customerId/payment-methods/:paymentMethodId')
+  async detachPaymentMethod(
+    @Param('paymentMethodId') paymentMethodId: string,
+  ) {
+    return await this.stripeService.detachPaymentMethod(paymentMethodId);
   }
 
   @Post('webhook')

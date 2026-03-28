@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.env*
+service-account.json
+.git
+docs
+*.md

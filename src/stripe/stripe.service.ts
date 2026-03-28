@@ -37,21 +37,16 @@ export class StripeService {
     currency: string,
     ownerStripeAccountId: string,
   ) {
-    return await this.stripe.paymentIntents.create(
-      {
-        amount,
-        currency,
-        payment_method_types: ['card'],
-        capture_method: 'manual',
-        application_fee_amount: Math.floor(amount * 0.1),
-        transfer_data: {
-          destination: ownerStripeAccountId,
-        },
+    return await this.stripe.paymentIntents.create({
+      amount,
+      currency,
+      payment_method_types: ['card'],
+      capture_method: 'manual',
+      application_fee_amount: Math.floor(amount * 0.1),
+      transfer_data: {
+        destination: ownerStripeAccountId,
       },
-      {
-        stripeAccount: ownerStripeAccountId,
-      },
-    );
+    });
   }
 
   constructEventFromPayload(signature: string, payload: Buffer) {
@@ -78,5 +73,33 @@ export class StripeService {
 
   async getBalance(accountId: string) {
     return await this.stripe.balance.retrieve({ stripeAccount: accountId });
+  }
+
+  async createCustomer(email: string, name?: string) {
+    return await this.stripe.customers.create({ email, name });
+  }
+
+  async attachPaymentMethod(customerId: string, paymentMethodId: string) {
+    await this.stripe.paymentMethods.attach(paymentMethodId, {
+      customer: customerId,
+    });
+    return await this.stripe.paymentMethods.retrieve(paymentMethodId);
+  }
+
+  async detachPaymentMethod(paymentMethodId: string) {
+    return await this.stripe.paymentMethods.detach(paymentMethodId);
+  }
+
+  async listPaymentMethods(customerId: string) {
+    return await this.stripe.paymentMethods.list({
+      customer: customerId,
+      type: 'card',
+    });
+  }
+
+  async setDefaultPaymentMethod(customerId: string, paymentMethodId: string) {
+    return await this.stripe.customers.update(customerId, {
+      invoice_settings: { default_payment_method: paymentMethodId },
+    });
   }
 }
